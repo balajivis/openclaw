@@ -2,13 +2,49 @@
 
 This file tells you (Claude) how to help a Modern AI Pro student get OpenClaw running. Read this before doing anything else in this repo.
 
+**Class reference:** https://learn.modernaipro.com/paths/agentic/openclaw-demo
+
+---
+
+## Important: OpenClaw is not in your training data
+
+OpenClaw was released in 2026 and is unlikely to appear in your training data. Do not guess how it works based on similar tools. Everything you need to know about its CLI, config format, and behavior is in this file and in the command output you see when you run it. When in doubt, run `openclaw --help` or `openclaw <command> --help` and reason from the actual output.
+
+OpenClaw's CLI is installed globally via npm (`npm install -g openclaw`). Its config lives at `~/.openclaw/openclaw.json`. Its gateway is a local WebSocket server (default port 18789). The `openclaw` binary is the single entry point for all operations.
+
 ---
 
 ## What is OpenClaw
 
-OpenClaw is a self-hosted AI agent gateway. It sits on the student's laptop and connects chat apps (Telegram, WhatsApp, Discord) to AI models (GPT, Llama, Claude). When a student messages a Telegram bot, OpenClaw receives it, sends it to an LLM, and delivers the reply — all running locally.
+OpenClaw (version 2026.x) is a self-hosted AI agent gateway built for developers and teams who want to run AI agents connected to real communication channels — without sending data to a third-party cloud platform.
 
-This is not a cloud service. Everything runs on the student's machine. That's the point: they own the stack.
+**What it does:**
+- Runs a local gateway (WebSocket server) on the user's machine
+- Connects chat channels (Telegram, WhatsApp, Discord, Slack, iMessage, Signal) to AI models
+- Routes incoming messages from those channels through an AI agent and sends the reply back
+- Supports multiple LLM providers simultaneously (OpenAI, Anthropic, Groq, Azure OpenAI, Ollama, etc.)
+- Provides memory, HITL (human-in-the-loop), observability, and scheduling on top of the model
+
+**What it is NOT:**
+- Not a SaaS product — it runs entirely on the user's machine
+- Not a wrapper around one specific model — it's provider-agnostic
+- Not related to OpenAI's "Operator" or any browser-automation tool despite the similar naming
+
+**The core flow:**
+```
+User → Telegram (or other channel)
+     → OpenClaw gateway (local, port 18789)
+     → LLM provider (Groq / Azure / etc.)
+     → Reply back to Telegram
+```
+
+**Key CLI concepts:**
+- `openclaw gateway` — starts the persistent agent server
+- `openclaw channels add/login` — connects a chat channel (Telegram, WhatsApp, etc.)
+- `openclaw config set` — modifies `~/.openclaw/openclaw.json`
+- `openclaw models list` — shows available LLM providers and models
+- `openclaw pairing approve` — authorizes a new user to talk to the bot
+- `openclaw capability model run` — one-shot model test without starting a full session
 
 ---
 
