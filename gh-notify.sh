@@ -8,7 +8,7 @@ set -a && source "$SCRIPT_DIR/.env" && set +a
 REPO="${REPO:-balajivis/openclaw}"
 SEEN_FILE="$SCRIPT_DIR/.gh-seen-issues"
 MSG_MAP="$SCRIPT_DIR/.gh-msg-map"   # format: telegram_msg_id:issue_number
-CHAT_ID="7670036459"
+CHAT_ID="${TELEGRAM_OWNER_CHAT_ID}"
 
 touch "$SEEN_FILE" "$MSG_MAP"
 

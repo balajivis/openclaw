@@ -8,7 +8,7 @@ set -a && source "$SCRIPT_DIR/.env" && set +a
 REPO="${REPO:-balajivis/openclaw}"
 MSG_MAP="$SCRIPT_DIR/.gh-msg-map"
 OFFSET_FILE="$SCRIPT_DIR/.gh-tg-offset"
-CHAT_ID="7670036459"
+CHAT_ID="${TELEGRAM_OWNER_CHAT_ID}"
 
 touch "$MSG_MAP" "$OFFSET_FILE"
 OFFSET=$(cat "$OFFSET_FILE" 2>/dev/null || echo "0")

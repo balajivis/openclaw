@@ -121,7 +121,7 @@ Go to [web.telegram.org](https://web.telegram.org) and log in with your phone nu
 
 ```
 Use this token to access the HTTP API:
-8615864604:AAHoPnsF6tN594wf0QF4uatELXpH0NBHVZA
+1234567890:AAHxxx...your_token_here
 ```
 
 Copy that token.
@@ -208,14 +208,86 @@ If you open this repo in [Claude Code](https://claude.ai/code), you get a `/setu
 
 ---
 
+## GitHub integration (2-way)
+
+Connect your GitHub repo to Telegram so you get notified of new issues and can reply directly from Telegram to post GitHub comments.
+
+**The classroom use case:**
+```
+Student opens a GitHub issue
+        ↓
+Instructor gets a Telegram ping with the issue title, author, and preview
+        ↓
+Instructor replies to that message in Telegram
+        ↓
+Reply is posted as a GitHub comment on the issue
+        ↓
+Telegram confirms with a link to the comment
+```
+
+### Setup
+
+**1. Create a GitHub personal access token**
+
+1. Go to github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens
+2. Click **Generate new token**
+3. Under "Repository access" → select the repo you want (e.g. `balajivis/openclaw`)
+4. Under "Permissions" → Issues → **Read and Write**
+5. Click **Generate token** → copy it
+
+**2. Get your Telegram user ID**
+
+Message your bot once — the pairing screen shows `Your Telegram user id: XXXXXXX`. That number is your `TELEGRAM_OWNER_CHAT_ID`.
+
+**3. Add to your .env**
+
+```bash
+GH_TOKEN="github_pat_your_token_here"
+TELEGRAM_OWNER_CHAT_ID="your_numeric_telegram_id"
+REPO="yourusername/yourrepo"   # defaults to balajivis/openclaw
+```
+
+**4. Set up the cron jobs**
+
+```bash
+# Make scripts executable
+chmod +x gh-notify.sh gh-reply.sh
+
+# Add to crontab (runs every minute)
+(crontab -l 2>/dev/null; echo "* * * * * /Users/you/openclaw/gh-notify.sh >> /tmp/gh-notify.log 2>&1") | crontab -
+(crontab -l 2>/dev/null; echo "* * * * * /Users/you/openclaw/gh-reply.sh  >> /tmp/gh-reply.log  2>&1") | crontab -
+
+# Verify
+crontab -l
+```
+
+Adjust the path to match where you cloned the repo.
+
+**5. Test it**
+
+Open a GitHub issue on your repo. Within 60 seconds you'll get a Telegram notification. Reply to it in Telegram — the reply appears as a GitHub comment.
+
+### How it works
+
+- `gh-notify.sh` — polls GitHub API every minute for new open issues, sends each one to Telegram, stores the `telegram_msg_id → issue_number` mapping in `.gh-msg-map`
+- `gh-reply.sh` — polls Telegram `getUpdates` every minute; when you reply to a notification message, it looks up the issue number, posts your reply as a GitHub comment, and confirms in Telegram
+
+Both files are stored in `.gitignore` so the mapping and offset files don't pollute the repo.
+
+---
+
 ## Repo structure
 
 ```
 openclaw/
-├── .env.example                       # Copy to .env, fill in your keys
-├── .env                               # Your keys — never committed
+├── .env.example          # Copy to .env, fill in your keys
+├── .env                  # Your keys — never committed
 ├── .gitignore
+├── azure-proxy.py        # Local proxy that adds ?api-version to Azure calls
+├── gh-notify.sh          # GitHub → Telegram notifications (cron, every minute)
+├── gh-reply.sh           # Telegram reply → GitHub comment (cron, every minute)
 └── .claude/
-    └── commands/
-        └── setup-openclaw.md          # Claude Code slash command
+    └── skills/
+        └── setup-openclaw/
+            └── SKILL.md  # /setup-openclaw Claude Code skill
 ```
