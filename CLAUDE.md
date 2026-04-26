@@ -212,10 +212,12 @@ openclaw gateway --force &
 ## Common problems and fixes
 
 **"HTTP 404: Resource not found" on Azure**
-The `azure-proxy.py` script is not running. Start it:
+Either the proxy isn't running, or it's an old version. Restart it:
 ```bash
+pkill -f "azure-proxy.py"
 set -a && source .env && set +a && python3 azure-proxy.py &
 ```
+The proxy auto-rewrites legacy `/completions` calls to `/chat/completions` for gpt-5.x models.
 
 **"API rate limit reached" on Groq**
 Groq free tier hit. Wait 60 seconds and retry, or switch to Azure (see above).
