@@ -1,3 +1,5 @@
 .env
 .env.local
 .gh-seen-issues
+.gh-msg-map
+.gh-tg-offset
